@@ -1390,42 +1390,307 @@
   <!-- ══════════════════════════════════════ -->
   <section id="quick-defs">
     <h2>Quick Reference — All Key Definitions <span class="chip">Flashcard Ready</span></h2>
-    <p class="section-intro">Use this for final review. Cover the right column and test yourself.</p>
+    <p class="section-intro">Tap any card to reveal a real-world example. Cover the definition and test yourself.</p>
 
-    <table>
-      <tr><th>Term</th><th>Definition (exact or near-exact)</th></tr>
-      <tr><td>Service management</td><td>A set of specialized organizational capabilities for enabling value for customers in the form of services</td></tr>
-      <tr><td>Service</td><td>A means of enabling value co-creation by facilitating outcomes that customers want to achieve, without the customer having to manage specific costs and risks</td></tr>
-      <tr><td>Value</td><td>The perceived benefits, usefulness, and importance of something</td></tr>
-      <tr><td>Organization</td><td>A person or group with its own functions, responsibilities, authorities, and relationships to achieve its objectives</td></tr>
-      <tr><td>Customer</td><td>Person who defines requirements for a service and takes responsibility for outcomes of service consumption</td></tr>
-      <tr><td>User</td><td>Person who uses services</td></tr>
-      <tr><td>Sponsor</td><td>Person who authorizes budget for service consumption</td></tr>
-      <tr><td>Utility</td><td>Functionality offered by a product/service to meet a particular need. "Fit for purpose." What the service DOES.</td></tr>
-      <tr><td>Warranty</td><td>Assurance that a product/service will meet agreed requirements. "Fit for use." How the service PERFORMS.</td></tr>
-      <tr><td>Output</td><td>A tangible or intangible deliverable of an activity</td></tr>
-      <tr><td>Outcome</td><td>A result for a stakeholder enabled by one or more outputs</td></tr>
-      <tr><td>Cost</td><td>Amount of money spent on a specific activity or resource</td></tr>
-      <tr><td>Risk</td><td>A possible event that could cause harm or loss, or make it more difficult to achieve objectives. Uncertainty of outcome.</td></tr>
-      <tr><td>Service offering</td><td>A formal description of one or more services, designed to address the needs of a target consumer group</td></tr>
-      <tr><td>Service relationship</td><td>A cooperation between a service provider and service consumer, including provision, consumption, and relationship management</td></tr>
-      <tr><td>Service provision</td><td>Activities performed by an organization to provide services</td></tr>
-      <tr><td>Service consumption</td><td>Activities performed by an organization to consume services</td></tr>
-      <tr><td>Value stream</td><td>A series of steps an organization undertakes to create and deliver products and services to consumers</td></tr>
-      <tr><td>Process</td><td>A set of interrelated or interacting activities that transform inputs into outputs</td></tr>
-      <tr><td>IT asset</td><td>Any financially valuable component that can contribute to the delivery of an IT product or service</td></tr>
-      <tr><td>Event</td><td>Any change of state that has significance for the management of a service or other CI</td></tr>
-      <tr><td>Configuration item (CI)</td><td>Any component that needs to be managed in order to deliver an IT service</td></tr>
-      <tr><td>Change</td><td>The addition, modification, or removal of anything that could have a direct or indirect effect on services</td></tr>
-      <tr><td>Incident</td><td>An unplanned interruption to a service or reduction in the quality of a service</td></tr>
-      <tr><td>Problem</td><td>A cause, or potential cause, of one or more incidents</td></tr>
-      <tr><td>Known error</td><td>A problem that has been analysed but has not been resolved</td></tr>
-      <tr><td>Workaround</td><td>A solution that reduces or eliminates the impact of an incident or problem for which a full resolution is not yet available</td></tr>
-      <tr><td>Release</td><td>A version of a service or other CI, or a collection of CIs, that is made available for use</td></tr>
-      <tr><td>Service level</td><td>One or more metrics that define expected or achieved service quality</td></tr>
-      <tr><td>Service level agreement (SLA)</td><td>A documented agreement between a service provider and a customer that identifies both services required and the expected level of service</td></tr>
-      <tr><td>Configuration management system (CMS)</td><td>A set of tools, data, and information used to support service configuration management</td></tr>
-    </table>
+    <style>
+      .def-card { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+      .def-card-head { padding: 14px 16px; background: var(--surface2); display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 12px; }
+      .def-card-term { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+      .def-card-text { font-size: 14px; color: var(--text); line-height: 1.55; }
+      .def-card-btn { flex-shrink: 0; background: rgba(79,126,248,.12); border: 1px solid var(--def-border); color: var(--accent); font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; user-select: none; min-height: 34px; display: flex; align-items: center; }
+      .def-card-btn:active { opacity: .7; }
+      .def-card-example { display: none; padding: 12px 16px; background: var(--tip-bg); border-top: 1px solid var(--tip-border); font-size: 14px; color: #d4f0e4; line-height: 1.6; }
+      .def-card-example .ex-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent3); margin-bottom: 6px; }
+      .def-card.ex-open .def-card-example { display: block; }
+      .def-card.ex-open .def-card-btn { background: rgba(42,185,122,.12); border-color: var(--tip-border); color: var(--accent3); }
+    </style>
+
+    <script>
+    function toggleEx(btn) {
+      btn.closest('.def-card').classList.toggle('ex-open');
+      btn.textContent = btn.closest('.def-card').classList.contains('ex-open') ? 'Hide Example' : '💡 Example';
+    }
+    </script>
+
+    <!-- SERVICE MANAGEMENT -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Service Management</div><div class="def-card-text">A set of specialized organizational capabilities for enabling value for customers in the form of services.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>An IT department that runs the company's email, laptop provisioning, and helpdesk. Their ability to consistently keep email running, get new hires set up quickly, and resolve issues is their "service management" — the collective skill and organization behind making those services work reliably.</div>
+    </div>
+
+    <!-- SERVICE -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Service</div><div class="def-card-text">A means of enabling value co-creation by facilitating outcomes that customers want to achieve, without the customer having to manage specific costs and risks.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Uber is a service. You want to get from A to B (outcome) without owning a car, hiring a driver, managing insurance, or dealing with maintenance (costs and risks managed by Uber). You co-create value — you tell Uber where you're going, they handle everything else.</div>
+    </div>
+
+    <!-- VALUE -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Value</div><div class="def-card-text">The perceived benefits, usefulness, and importance of something. Value is subjective — defined by the stakeholder's perception.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>A 99.9% uptime SLA might be highly valued by an e-commerce company (every minute of downtime = lost revenue) but barely matter to an internal HR system used only 9–5. Same service, different perceived value. This is why SLAs must be negotiated per customer, not set uniformly.</div>
+    </div>
+
+    <!-- ORGANIZATION -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Organization</div><div class="def-card-text">A person or group of people that has its own functions with responsibilities, authorities, and relationships to achieve its objectives.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>A single freelance IT consultant is an organization. So is a 50,000-person global bank. Both have defined responsibilities and objectives. In ITIL, the same entity can be both a service provider (to its customers) and a service consumer (buying cloud services from AWS).</div>
+    </div>
+
+    <!-- CUSTOMER -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Customer</div><div class="def-card-text">A person who defines the requirements for a service and takes responsibility for the outcomes of service consumption.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>The Head of Sales at a retail company who tells IT "we need a CRM that handles 10,000 contacts, integrates with email, and is available 24/7." They define the requirements and are accountable if sales targets aren't met because the CRM fails. They are the customer — even if they never personally log into the CRM.</div>
+    </div>
+
+    <!-- USER -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">User</div><div class="def-card-text">A person who uses services.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>The sales reps who log into the CRM every day to manage their pipeline. They didn't define the requirements (that was the Head of Sales / customer) and didn't approve the budget (that was the CFO / sponsor) — but they use the system daily. Their experience directly shapes service desk ticket volume.</div>
+    </div>
+
+    <!-- SPONSOR -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Sponsor</div><div class="def-card-text">A person who authorizes the budget for service consumption.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>The CFO who signs off the $50,000/year Salesforce contract. They may never use the CRM and didn't specify what it needs to do — but without their budget approval, the service doesn't get purchased. In a small business, the owner might be customer + user + sponsor all at once.</div>
+    </div>
+
+    <!-- UTILITY -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Utility</div><div class="def-card-text">The functionality offered by a product or service to meet a particular need. "Fit for purpose." What the service DOES.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>A store's Wi-Fi has utility if it lets staff process card payments and access the inventory system. If it can't handle those tasks — even if it's technically "on" — it lacks utility. Your store's POS system has utility: it processes transactions, prints receipts, tracks inventory. That's the "what it does."</div>
+    </div>
+
+    <!-- WARRANTY -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Warranty</div><div class="def-card-text">Assurance that a product or service will meet agreed requirements. "Fit for use." How the service PERFORMS.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Your store's POS system has warranty if it's available during all trading hours, processes transactions in under 3 seconds, and never loses a sale due to downtime. The system might have all the right features (utility) but if it crashes every Saturday afternoon — your busiest time — it fails on warranty. Both are needed for value.</div>
+    </div>
+
+    <!-- OUTPUT -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Output</div><div class="def-card-text">A tangible or intangible deliverable of an activity.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>A weekly sales report generated by the IT team is an output — it's the tangible thing produced. A trained employee after completing onboarding is also an output (intangible). The report itself isn't the point — what the manager does with it (makes decisions, spots trends) is the outcome.</div>
+    </div>
+
+    <!-- OUTCOME -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Outcome</div><div class="def-card-text">A result for a stakeholder enabled by one or more outputs.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>The weekly sales report (output) enables the store manager to identify that Tuesday afternoons are dead and Friday evenings are understaffed — then reschedule accordingly. The outcome is better-staffed shifts and higher sales. IT provided the output; the business achieved the outcome. ITIL says providers should care about outcomes, not just outputs.</div>
+    </div>
+
+    <!-- COST -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Cost</div><div class="def-card-text">The amount of money spent on a specific activity or resource. Services both remove costs from consumers and impose new ones.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Using a cloud payroll service (e.g. ADP) removes costs: you don't need a payroll accountant, payroll software, or compliance expertise. But it imposes costs: monthly subscription fee, time to integrate with your HR system. A service that removes more cost than it imposes creates value — if it doesn't, it's not worth having.</div>
+    </div>
+
+    <!-- RISK -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Risk</div><div class="def-card-text">A possible event that could cause harm or loss, or make it harder to achieve objectives. Services both remove risks and impose new ones.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Using AWS for hosting removes risks: you don't manage physical servers, power, cooling, or hardware failure. But it imposes new risks: vendor lock-in, data sovereignty issues, internet dependency. A good service provider makes this trade-off clearly visible so consumers can make informed decisions.</div>
+    </div>
+
+    <!-- SERVICE OFFERING -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Service Offering</div><div class="def-card-text">A formal description of one or more services designed to address the needs of a target consumer group. May include goods, resource access, and service actions.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>An IT department's "New Employee Setup" service offering includes: a laptop (good — ownership transferred), access to email/Slack/systems (resource access — no ownership), and IT orientation session (service action — performed by IT). Together, these address the new hire's need to be productive from day one.</div>
+    </div>
+
+    <!-- SERVICE RELATIONSHIP -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Service Relationship</div><div class="def-card-text">A cooperation between a service provider and consumer, including provision, consumption, and relationship management.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Your store's relationship with its EPOS (till) software vendor. The vendor provides the system and support (provision). Your staff use it daily (consumption). You have quarterly review calls, raise enhancement requests, and escalate issues (relationship management). All three together = the service relationship.</div>
+    </div>
+
+    <!-- SERVICE PROVISION -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Service Provision</div><div class="def-card-text">Activities performed by an organization to provide services — managing resources, ensuring access, fulfilling service actions.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Everything your mobile network (e.g. Verizon) does to give you phone service: maintaining cell towers, managing spectrum, routing calls, running billing systems, staffing customer support. You never see most of it — but it's all service provision happening behind the scenes.</div>
+    </div>
+
+    <!-- SERVICE CONSUMPTION -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Service Consumption</div><div class="def-card-text">Activities performed by an organization to consume services — using resources, receiving service actions, enabling outcomes.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Your store consuming Microsoft 365: paying the subscription, setting up user accounts, training staff, managing licenses, contacting support when something breaks. The store is actively doing things to consume the service — it's not passive. Poor consumption (e.g. not training staff) leads to poor outcomes even if the service itself is great.</div>
+    </div>
+
+    <!-- VALUE STREAM -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Value Stream</div><div class="def-card-text">A series of steps an organization undertakes to create and deliver products and services to consumers.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>When a user calls the service desk with a broken laptop: log ticket → diagnose → order replacement → image and configure → deliver to user → close ticket. That end-to-end sequence of steps — crossing IT, procurement, and logistics — is a value stream. Each step adds value toward the outcome: a working laptop.</div>
+    </div>
+
+    <!-- PROCESS -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Process</div><div class="def-card-text">A set of interrelated or interacting activities that transform inputs into outputs. A defined, repeatable way of doing something.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>The incident management process: receive report → log → categorize → prioritize → investigate → resolve → close → review. Input: reported disruption. Output: resolved incident record and restored service. The process is the same regardless of who runs it or which system went down — that's what makes it a process.</div>
+    </div>
+
+    <!-- IT ASSET -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">IT Asset</div><div class="def-card-text">Any financially valuable component that can contribute to the delivery of an IT product or service.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>In your store: the tills (hardware), the POS software license, the Wi-Fi router, the server in the back room, even the software code for a custom app. All are IT assets because they have financial value and contribute to IT service delivery. IT asset management tracks these across their full lifecycle — purchase, use, maintenance, disposal.</div>
+    </div>
+
+    <!-- EVENT -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Event</div><div class="def-card-text">Any change of state that has significance for the management of a service or other CI. Detected via monitoring tools.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Your server's CPU hits 95% utilization — a monitoring tool detects this change of state and logs an event. Not all events are bad: "backup completed successfully" is also an event. Events are classified as: informational (normal), warning (approaching threshold), or exception (something has gone wrong → may become an incident).</div>
+    </div>
+
+    <!-- CONFIGURATION ITEM -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Configuration Item (CI)</div><div class="def-card-text">Any component that needs to be managed in order to deliver an IT service.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>The store's Wi-Fi router is a CI — IT needs to know it exists, what firmware it runs, what it connects to, and who's responsible for it. A CI can be hardware, software, a network, a building, a person, or even a document (like an SLA). CIs are recorded in a Configuration Management Database (CMDB) so you can trace the impact of any change or failure.</div>
+    </div>
+
+    <!-- CHANGE -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Change</div><div class="def-card-text">The addition, modification, or removal of anything that could have a direct or indirect effect on services.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Updating the POS software from v3.1 to v3.2 is a change. So is adding a new till, removing an old server, changing a firewall rule, or updating a user's access permissions. Changes need to be controlled because even a small tweak can break something else — most IT outages are caused by poorly managed changes.</div>
+    </div>
+
+    <!-- INCIDENT -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Incident</div><div class="def-card-text">An unplanned interruption to a service or reduction in the quality of a service.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>The store's card payment system goes down at 12pm on a Saturday. That's an incident — unplanned, impacting service quality. Even a slowdown counts: if the POS normally processes in 2 seconds but is now taking 30 seconds per transaction, that's also an incident (reduction in quality). Goal: restore normal service as fast as possible, not necessarily fix the root cause right now.</div>
+    </div>
+
+    <!-- PROBLEM -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Problem</div><div class="def-card-text">A cause, or potential cause, of one or more incidents.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>The card payment system crashes every Saturday. After the third time, IT raises a problem record to investigate the underlying cause. They discover a memory leak in the POS software that builds up over a week and causes crashes. That memory leak is the problem. Fixing the incident (restarting the system) didn't fix the problem — the crash keeps recurring.</div>
+    </div>
+
+    <!-- KNOWN ERROR -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Known Error</div><div class="def-card-text">A problem that has been analysed but has not been resolved.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>IT has confirmed the memory leak in the POS software and identified which module causes it — but a patch from the vendor won't be available for 3 weeks. It's now a known error: diagnosed, documented, not yet fixed. The team documents a workaround (restart the service every Friday night) so staff know what to do when it crashes, without waiting for IT to investigate from scratch each time.</div>
+    </div>
+
+    <!-- WORKAROUND -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Workaround</div><div class="def-card-text">A solution that reduces or eliminates the impact of an incident or problem for which a full resolution is not yet available.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Restarting the POS service every Friday night before the Saturday rush prevents the crash — that's the workaround. It doesn't fix the memory leak (the problem), but it reduces impact to near-zero while waiting for the vendor patch. Some workarounds become permanent if the fix is too costly or complex — the workaround just gets built into standard operating procedure.</div>
+    </div>
+
+    <!-- RELEASE -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Release</div><div class="def-card-text">A version of a service or other CI, or a collection of CIs, that is made available for use.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>The vendor sends the POS v3.3 patch that fixes the memory leak. IT deploys it to the servers (deployment management) but holds it behind a feature flag — staff can't use it yet. When IT flips the flag and makes v3.3 live to all stores, that's the release. Deployment ≠ release: you can deploy without releasing (staged rollout, testing).</div>
+    </div>
+
+    <!-- SERVICE LEVEL -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Service Level</div><div class="def-card-text">One or more metrics that define expected or achieved service quality.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>"The service desk will answer 90% of calls within 20 seconds" and "critical incidents will be resolved within 1 hour" are service levels. They're measurable, specific targets that both sides agree on. Without defined service levels, there's no shared expectation and no way to objectively assess whether the provider is performing.</div>
+    </div>
+
+    <!-- SLA -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Service Level Agreement (SLA)</div><div class="def-card-text">A documented agreement between a service provider and a customer identifying services required and the expected level of service.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>Your store signs an SLA with its EPOS vendor: 99.5% uptime during trading hours, P1 incidents resolved within 2 hours, P2 within 8 hours, monthly performance reports provided. If the vendor misses these, penalties apply. A good SLA reflects business outcomes — not just technical metrics — to avoid the watermelon effect (green metrics, unhappy customer).</div>
+    </div>
+
+    <!-- CMS -->
+    <div class="def-card">
+      <div class="def-card-head">
+        <div><div class="def-card-term">Configuration Management System (CMS)</div><div class="def-card-text">A set of tools, data, and information used to support service configuration management.</div></div>
+        <button class="def-card-btn" onclick="toggleEx(this)">💡 Example</button>
+      </div>
+      <div class="def-card-example"><div class="ex-label">Real World</div>ServiceNow's CMDB module is a CMS. It holds records of every server, laptop, application, and network device — who owns it, what it connects to, what services depend on it. When an incident hits, the responder opens the CMS to understand what else might be affected. Without it, a single router failure could take hours to trace because no one knows what depends on it.</div>
+    </div>
+
   </section>
 
   <!-- ══════════════════════════════════════ -->
