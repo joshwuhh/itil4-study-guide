@@ -1655,11 +1655,28 @@ function closeNav() {
   overlay.classList.remove('visible');
   document.body.style.overflow = '';
 }
-// Close drawer when a nav link is tapped
+// Close drawer when a nav link is tapped — restore scroll FIRST so anchor works
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('nav a').forEach(a => {
-    a.addEventListener('click', () => {
-      if (window.innerWidth <= 768) closeNav();
+    a.addEventListener('click', function(e) {
+      if (window.innerWidth > 768) return;
+      const href = this.getAttribute('href');
+      if (!href || !href.startsWith('#')) { closeNav(); return; }
+      e.preventDefault();
+      // 1. Restore scroll immediately
+      document.body.style.overflow = '';
+      // 2. Close drawer visually
+      const nav = document.querySelector('nav');
+      const btn = document.getElementById('navToggle');
+      const overlay = document.getElementById('navOverlay');
+      nav.classList.remove('open');
+      btn.classList.remove('open');
+      overlay.classList.remove('visible');
+      // 3. Scroll to target after drawer animation (280ms)
+      setTimeout(() => {
+        const target = document.querySelector(href);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
     });
   });
 });
