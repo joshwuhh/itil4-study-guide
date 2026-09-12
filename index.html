@@ -1963,16 +1963,141 @@ const observer = new IntersectionObserver((entries) => {
 sections.forEach(s => observer.observe(s));
 
 // ── MOCK EXAM LOGIC ──
+const EXAM_SIZE = 40;
+const STORAGE_KEY = 'itil4_attempts';
+
+const QUESTION_BANK = [
+// LO1
+{id:'l1_01',lo:'LO1',q:"What is the ITIL 4 definition of a 'service'?",opts:['A set of specialized organizational capabilities for enabling value for customers','A means of enabling value co-creation by facilitating outcomes that customers want to achieve, without the customer having to manage specific costs and risks','A tangible or intangible deliverable of an activity','The perceived benefits, usefulness, and importance of something'],correct:1,explain:"Option A = service management. Option C = output. Option D = value. A service specifically facilitates outcomes without the customer managing the associated costs and risks."},
+{id:'l1_02',lo:'LO1',q:"Which term means 'fit for purpose'?",opts:['Warranty','Value','Utility','Outcome'],correct:2,explain:"Utility = fit for purpose (what the service DOES). Warranty = fit for use (how it PERFORMS). Both are required for value."},
+{id:'l1_03',lo:'LO1',q:"Which term means 'fit for use' — assurance that a service meets agreed requirements?",opts:['Utility','Warranty','Output','Cost'],correct:1,explain:"Warranty covers availability, capacity, security, and continuity. Utility = what it does. Warranty = how reliably it does it."},
+{id:'l1_04',lo:'LO1',q:"Who authorizes the budget for service consumption?",opts:['Customer','User','Sponsor','Service provider'],correct:2,explain:"Sponsor = authorizes budget. Customer = defines requirements. User = uses the service."},
+{id:'l1_05',lo:'LO1',q:"Who defines the requirements for a service and takes responsibility for the outcomes?",opts:['User','Sponsor','Customer','Service owner'],correct:2,explain:"Customer defines requirements and is accountable for outcomes. The user just uses the service. The sponsor approves funding."},
+{id:'l1_06',lo:'LO1',q:"What is the difference between an output and an outcome?",opts:['An output is intangible; an outcome is always tangible','An output is a deliverable of an activity; an outcome is a result for a stakeholder enabled by outputs','An outcome is a deliverable; an output is a result for a stakeholder','They are the same thing in ITIL 4'],correct:1,explain:"Output = the deliverable (e.g. the report). Outcome = the result the stakeholder achieves because of it. Providers deliver outputs; consumers achieve outcomes."},
+{id:'l1_07',lo:'LO1',q:"Which of the following is NOT a component of a service offering?",opts:['Goods','Access to resources','Service actions','Processes'],correct:3,explain:"A service offering contains: goods, access to resources, and service actions. Processes belong to the value streams and processes dimension."},
+{id:'l1_08',lo:'LO1',q:"How does ITIL 4 define 'value co-creation'?",opts:['Value is delivered by the provider to a passive consumer','Value is created solely through efficient internal processes','Value is co-created through active collaboration between providers and consumers','Value only exists when a formal SLA is signed'],correct:2,explain:"ITIL 4 moves away from the delivery model. Providers and consumers actively collaborate to create value."},
+{id:'l1_09',lo:'LO1',q:"What is 'service management' in ITIL 4?",opts:['A documented agreement between provider and customer','A set of specialized organizational capabilities for enabling value for customers in the form of services','The activities performed by an organization to consume services','A series of steps to create and deliver products and services'],correct:1,explain:"Service management = the specialized organizational capabilities that enable value delivery. This is the ITIL textbook definition."},
+{id:'l1_10',lo:'LO1',q:"Which statement BEST describes the relationship between utility and warranty?",opts:['A service only needs utility to deliver value','A service only needs warranty to deliver value','Both utility and warranty are required for a service to deliver value','Utility and warranty are optional depending on customer requirements'],correct:2,explain:"Both are required. A theme park with great rides (utility) that are constantly broken (no warranty) delivers no value."},
+{id:'l1_11',lo:'LO1',q:"An organization buys cloud storage. The provider retains ownership of the infrastructure. What type of service offering component is this?",opts:['Goods','Access to resources','Service action','Service relationship'],correct:1,explain:"Access to resources = consumer uses under agreed terms but provider retains ownership. Goods = ownership transfers. Service actions = tasks performed by the provider."},
+{id:'l1_12',lo:'LO1',q:"What is a 'service relationship'?",opts:['A documented SLA between provider and consumer','A cooperation between provider and consumer including provision, consumption, and relationship management','The activities performed by a provider to deliver services','The activities performed by a consumer to use services'],correct:1,explain:"Service relationship encompasses all three: service provision, service consumption, and service relationship management."},
+{id:'l1_13',lo:'LO1',q:"In ITIL 4, costs imposed on a service consumer are considered which of the following?",opts:['Always negative and must be eliminated','Part of what a service removes from the consumer','One of two types of cost — alongside costs removed','Irrelevant to the value assessment of a service'],correct:2,explain:"Services both remove costs (value) and impose new costs. A service creates value when costs removed outweigh costs imposed."},
+{id:'l1_14',lo:'LO1',q:"What does ITIL 4 mean by 'value is subjective'?",opts:['Value cannot be measured','Value is defined by the provider, not the consumer','Value is perceived differently by different stakeholders','Value only applies to financial benefits'],correct:2,explain:"Value depends on stakeholder perception. Same service, different value to different customers."},
+{id:'l1_15',lo:'LO1',q:"Which BEST describes 'service provision'?",opts:['Activities performed by an organization to consume services','Activities performed by an organization to provide services, including managing resources and fulfilling service actions','A documented agreement about service quality','The financial relationship between provider and consumer'],correct:1,explain:"Service provision = what the provider does: managing resources, ensuring access, fulfilling service actions."},
+// LO2
+{id:'l2_01',lo:'LO2',q:"Which guiding principle recommends assessing what already exists before building from scratch?",opts:['Focus on value','Start where you are','Keep it simple and practical','Think and work holistically'],correct:1,explain:"'Start where you are' — investigate the current state directly. Removing what exists without careful consideration is rarely the right approach."},
+{id:'l2_02',lo:'LO2',q:"Which guiding principle specifically addresses analysis paralysis?",opts:['Focus on value','Keep it simple and practical','Progress iteratively with feedback','Collaborate and promote visibility'],correct:2,explain:"'Progress iteratively with feedback' — comprehend the whole but do something. Work in small loops to avoid over-analyzing before acting."},
+{id:'l2_03',lo:'LO2',q:"What must happen BEFORE automating according to the guiding principles?",opts:['Get sign-off from all stakeholders','Optimize first, then automate','Document every process step in full','Train all users on the new process'],correct:1,explain:"Optimize and automate: simplify the process first, THEN automate. Automating a complex or broken process just makes it fail faster."},
+{id:'l2_04',lo:'LO2',q:"Which principle states that work and consequences should be made visible and information shared widely?",opts:['Think and work holistically','Collaborate and promote visibility','Focus on value','Optimize and automate'],correct:1,explain:"'Collaborate and promote visibility' — avoid hidden agendas, make work visible, share information broadly."},
+{id:'l2_05',lo:'LO2',q:"An organization eliminates all process steps that don't contribute to an outcome. Which principle guides this?",opts:['Focus on value','Start where you are','Keep it simple and practical','Progress iteratively with feedback'],correct:2,explain:"'Keep it simple and practical' — use the minimum steps needed. If something doesn't add value, eliminate it."},
+{id:'l2_06',lo:'LO2',q:"Which principle is MOST relevant when considering how a change to one part of a system might affect other parts?",opts:['Start where you are','Collaborate and promote visibility','Progress iteratively with feedback','Think and work holistically'],correct:3,explain:"'Think and work holistically' — no service or element stands alone. Consider the end-to-end picture and all four dimensions."},
+{id:'l2_07',lo:'LO2',q:"A team releases features to 10% of users first, gathers feedback, then rolls out more broadly. Which principle is being applied?",opts:['Focus on value','Start where you are','Progress iteratively with feedback','Collaborate and promote visibility'],correct:2,explain:"'Progress iteratively with feedback' — releasing to a pilot group is a classic iteration using real feedback before broader deployment."},
+{id:'l2_08',lo:'LO2',q:"Which BEST describes a 'guiding principle' in ITIL 4?",opts:['A mandatory rule that must be followed in all ITIL implementations','A recommendation that guides an organization in all circumstances regardless of changes in goals or strategy','A process step within the service value chain','A key performance indicator for service management'],correct:1,explain:"Guiding principles are recommendations — not mandatory rules. They apply across different approaches (Agile, DevOps, Lean)."},
+{id:'l2_09',lo:'LO2',q:"Does 'Collaborate and promote visibility' mean all decisions require consensus?",opts:['Yes, all stakeholders must agree before any decision','No, collaboration does not mean consensus — decisions can be made without full agreement','Yes, but only for major changes','No, only technical decisions require consensus'],correct:1,explain:"Collaboration ≠ consensus. Trying to please everyone leads to poor outcomes or inaction. Right people are involved and informed, but decisions must still be made."},
+{id:'l2_10',lo:'LO2',q:"An IT team maps all the ways their new system touches existing systems before deploying. Which principle is this?",opts:['Start where you are','Think and work holistically','Keep it simple and practical','Optimize and automate'],correct:1,explain:"'Think and work holistically' — understanding end-to-end dependencies before deploying. Changes have ripple effects."},
+{id:'l2_11',lo:'LO2',q:"An organization consistently asks 'Who benefits from this step and how?' Which principle is this?",opts:['Collaborate and promote visibility','Keep it simple and practical','Focus on value','Progress iteratively with feedback'],correct:2,explain:"'Focus on value' — everything should map directly or indirectly to value for stakeholders. Constantly asking 'who benefits?' keeps value as the north star."},
+{id:'l2_12',lo:'LO2',q:"How should guiding principles be applied?",opts:['One at a time, selecting the most relevant','All seven must always be applied equally','In isolation, as each covers a different domain','Organizations choose which principles to adopt permanently'],correct:0,explain:"Consider the relevance of all 7 in each situation — one or a few will be most applicable. They interact and reinforce each other."},
+{id:'l2_13',lo:'LO2',q:"In 'Start where you are', what is measurement's correct role?",opts:['Measurement replaces direct observation','Measurement supports and validates direct observation, not substitutes for it','Measurement is only needed for financial reporting','Measurement should be avoided to keep things simple'],correct:1,explain:"Measure, but also observe directly. Reports can give a distorted picture. 'Start where you are' emphasizes going to see the current state firsthand."},
+{id:'l2_14',lo:'LO2',q:"A service provider has a 22-step onboarding process with many redundant steps. Which two principles BEST guide improvement?",opts:['Focus on value and Optimize and automate','Keep it simple and practical and Progress iteratively with feedback','Start where you are and Think and work holistically','Collaborate and promote visibility and Focus on value'],correct:1,explain:"'Keep it simple and practical' addresses eliminating redundant steps. 'Progress iteratively with feedback' guides improving in small increments."},
+{id:'l2_15',lo:'LO2',q:"Which principle recognizes human resources should be used for complex decisions while repetitive tasks should be automated?",opts:['Keep it simple and practical','Think and work holistically','Collaborate and promote visibility','Optimize and automate'],correct:3,explain:"'Optimize and automate' — use human talent where it adds most value (judgment, creativity) and automate repetitive, well-understood tasks."},
+// LO3
+{id:'l3_01',lo:'LO3',q:"Which dimension covers workflow management systems, knowledge bases, and AI tools?",opts:['Organizations and people','Information and technology','Partners and suppliers','Value streams and processes'],correct:1,explain:"Information and technology = information managed to deliver services AND technologies required (workflow systems, knowledge bases, AI, cloud, analytics)."},
+{id:'l3_02',lo:'LO3',q:"Which dimension covers formal organizational structures, culture, roles, and management styles?",opts:['Organizations and people','Information and technology','Partners and suppliers','Value streams and processes'],correct:0,explain:"Organizations and people = structure, culture, roles, responsibilities, competencies, and ways of working."},
+{id:'l3_03',lo:'LO3',q:"What does PESTLE stand for in the context of external factors?",opts:['People, Efficiency, Systems, Technology, Legal, Environment','Political, Economic, Social, Technological, Legal, Environmental','Process, Enterprise, Service, Trend, Lifecycle, Evaluation','Planning, Execution, Stakeholder, Transformation, Learning, Evolution'],correct:1,explain:"PESTLE = Political, Economic, Social, Technological, Legal, Environmental. These external factors constrain all four dimensions."},
+{id:'l3_04',lo:'LO3',q:"An organization uses SIAM to coordinate multiple suppliers. Which dimension is MOST relevant?",opts:['Organizations and people','Information and technology','Partners and suppliers','Value streams and processes'],correct:2,explain:"Partners and suppliers covers relationships with other organizations involved in service design, development, deployment, and support — including SIAM."},
+{id:'l3_05',lo:'LO3',q:"What is a 'value stream' in ITIL 4?",opts:['A set of tools used to monitor service performance','A series of steps an organization undertakes to create and deliver products and services to consumers','A documented agreement between provider and consumer','A set of interrelated activities that transform inputs into outputs'],correct:1,explain:"A value stream = the end-to-end sequence of steps needed to deliver value. It maps how work flows from trigger to delivered outcome."},
+{id:'l3_06',lo:'LO3',q:"Which dimension concerns how work flows and activities that transform inputs into outputs?",opts:['Organizations and people','Information and technology','Partners and suppliers','Value streams and processes'],correct:3,explain:"Value streams and processes = the activities, workflows, controls, and procedures needed to deliver services."},
+{id:'l3_07',lo:'LO3',q:"Failing to address all four dimensions leads to what?",opts:['Minor inefficiencies only','Undeliverable services or services that fail to meet quality/efficiency expectations','Increased supplier costs','Higher staff turnover'],correct:1,explain:"All four dimensions are collectively critical. Neglecting any one will result in services that can't be delivered effectively or fail to meet stakeholder expectations."},
+{id:'l3_08',lo:'LO3',q:"What is the difference between a value stream and a process?",opts:['They are the same thing','A value stream is end-to-end across multiple steps; a process is a specific set of activities transforming inputs into outputs','A process is always automated; a value stream is always manual','A value stream only exists within a single department'],correct:1,explain:"A value stream = end-to-end delivery of value. A process = specific set of activities transforming inputs to outputs. Multiple processes contribute to one value stream."},
+// LO4
+{id:'l4_01',lo:'LO4',q:"What are the inputs to the ITIL Service Value System?",opts:['Products and services','Guiding principles and governance','Opportunity and demand','Practices and the service value chain'],correct:2,explain:"The SVS inputs are Opportunity and Demand. Output = Value. Options B and D are components within the SVS, not inputs."},
+{id:'l4_02',lo:'LO4',q:"Which SVS component provides the set of interconnected activities that deliver valuable products and services?",opts:['Guiding principles','Governance','Service value chain','Continual improvement'],correct:2,explain:"The service value chain = a set of interconnected activities to deliver valuable products/services. It sits at the centre of the SVS."},
+{id:'l4_03',lo:'LO4',q:"What is the output of the ITIL Service Value System?",opts:['Demand','Opportunity','Value','Products and services'],correct:2,explain:"The SVS takes Opportunity and Demand as inputs and produces Value as output — for the organization, customers, and other stakeholders."},
+{id:'l4_04',lo:'LO4',q:"How does the SVS prevent organizational silos?",opts:['By requiring all teams to report to a single governance body','By allowing value chain activities and practices to combine flexibly in multiple value streams','By mandating identical processes across all departments','By outsourcing non-core functions'],correct:1,explain:"The SVS is designed to discourage siloed working. Activities and practices combine flexibly into value streams rather than forming a fixed rigid structure."},
+{id:'l4_05',lo:'LO4',q:"What are the five components of the ITIL SVS?",opts:['Service desk, service value chain, practices, governance, continual improvement','Guiding principles, governance, service value chain, practices, continual improvement','Service offerings, service relationships, value streams, processes, four dimensions','Demand, opportunity, value, practices, guiding principles'],correct:1,explain:"SVS = Guiding principles + Governance + Service value chain + Practices + Continual improvement. Inputs: opportunity and demand. Output: value."},
+{id:'l4_06',lo:'LO4',q:"What role does 'governance' play in the SVS?",opts:['It delivers services to customers','It means by which the organization is directed and controlled — Evaluate, Direct, Monitor','It manages supplier relationships','It is another name for service management'],correct:1,explain:"Governance = Evaluate, Direct, Monitor. It ensures organizational objectives are achieved. Every organization needs governance."},
+// LO5
+{id:'l5_01',lo:'LO5',q:"Which value chain activity handles ALL interactions with external parties?",opts:['Plan','Improve','Engage','Deliver and support'],correct:2,explain:"Fixed rule: all incoming and outgoing interactions with external parties go through Engage."},
+{id:'l5_02',lo:'LO5',q:"What is the purpose of the 'Plan' value chain activity?",opts:['To ensure continual improvement of products, services, and practices','To ensure a shared understanding of vision, current status, and improvement direction across all four dimensions','To move new or changed components to live environments','To provide understanding of stakeholder needs'],correct:1,explain:"Plan = shared understanding of vision, current status, and improvement direction — for all four dimensions and all products/services."},
+{id:'l5_03',lo:'LO5',q:"Which value chain activity is MOST associated with incident management and service request management?",opts:['Plan','Design and transition','Obtain/build','Deliver and support'],correct:3,explain:"Deliver and support = ensuring services are delivered and supported per agreed specifications. Incident and service request management make their biggest contribution here."},
+{id:'l5_04',lo:'LO5',q:"What is the purpose of 'Obtain/Build'?",opts:['To ensure stakeholder needs are understood','To ensure service components are available when and where needed, meeting agreed specifications','To ensure continual improvement across all activities','To ensure products meet stakeholder expectations for quality and time to market'],correct:1,explain:"Obtain/build = ensuring service components are available when/where needed. All new resources come through Obtain/build — this is a fixed rule."},
+{id:'l5_05',lo:'LO5',q:"What is the purpose of 'Design and Transition'?",opts:['To ensure services are delivered and supported according to agreed specifications','To ensure products/services continually meet stakeholder expectations for quality, costs, and time to market','To capture demand for incident resolution and service requests','To ensure a shared understanding of the vision and current status'],correct:1,explain:"Design and transition = quality, costs, and time to market. Feeds specs into Obtain/build and hands completed products to Deliver and support."},
+{id:'l5_06',lo:'LO5',q:"Which value chain activity ensures continual improvement at all levels?",opts:['Plan','Improve','Engage','Deliver and support'],correct:1,explain:"Improve = ensuring continual improvement across all value chain activities and four dimensions. All improvements are initiated via Improve — fixed rule."},
+{id:'l5_07',lo:'LO5',q:"What is a 'value stream' in the context of the service value chain?",opts:['Another name for the service value chain','A specific combination of value chain activities designed for a particular scenario','A list of all practices used by an organization','A single value chain activity'],correct:1,explain:"A value stream = a specific combination of value chain activities (and practices) for a particular scenario. The value chain is the template; value streams are real workflows."},
+{id:'l5_08',lo:'LO5',q:"The service value chain activities are NOT sequential. What does this mean?",opts:['Activities can be skipped entirely','Activities can be combined in different orders to form value streams for different scenarios','Each activity happens only once per service lifecycle','Activities are performed simultaneously by all teams'],correct:1,explain:"The value chain is flexible — different value streams combine activities in different sequences for different triggers and scenarios."},
+// LO6
+{id:'l6_01',lo:'LO6',q:"What is an 'event' in ITIL 4?",opts:['An unplanned interruption to a service','A cause or potential cause of one or more incidents','Any change of state that has significance for the management of a service or other CI','A request from a user that initiates a service action'],correct:2,explain:"Event = any change of state with significance for service management. Types: informational, warning, exception. Option A = incident. Option B = problem. Option D = service request."},
+{id:'l6_02',lo:'LO6',q:"What is a 'configuration item' (CI)?",opts:['Any financially valuable component that can contribute to an IT product or service','Any component that needs to be managed in order to deliver an IT service','A version of a service made available for use','A problem that has been analysed but not resolved'],correct:1,explain:"CI = any component that needs to be managed to deliver an IT service. Not all CIs are IT assets and vice versa."},
+{id:'l6_03',lo:'LO6',q:"What is an 'IT asset'?",opts:['Any component that needs to be managed to deliver an IT service','Any financially valuable component that can contribute to the delivery of an IT product or service','A documented agreement between provider and consumer','A change of state that has significance for service management'],correct:1,explain:"IT asset = financially valuable component. Key distinction from a CI which is managed, not necessarily financially valuable."},
+{id:'l6_04',lo:'LO6',q:"What is a 'known error'?",opts:['An unplanned interruption to a service','A cause or potential cause of one or more incidents','A problem that has been analysed but has not been resolved','A solution that reduces the impact of an incident'],correct:2,explain:"Known error = problem that has been analysed (root cause identified) but not yet resolved."},
+{id:'l6_05',lo:'LO6',q:"What is the purpose of the 'information security management' practice?",opts:['To establish and nurture links between the organization and its stakeholders','To plan and manage the full lifecycle of all IT assets','To protect the information needed by the organization to conduct its business','To ensure suppliers are managed appropriately'],correct:2,explain:"Information security management = protect organizational information (confidentiality, integrity, availability — CIA)."},
+{id:'l6_06',lo:'LO6',q:"What is the purpose of 'supplier management'?",opts:['To ensure the organization and its stakeholders have a shared view of services','To ensure suppliers and their performances are managed appropriately to support quality products and services','To establish and nurture links between the organization and all stakeholders','To set clear business-based targets for service levels'],correct:1,explain:"Supplier management = manage suppliers and their performance to support seamless quality services."},
+{id:'l6_07',lo:'LO6',q:"What is the purpose of 'relationship management'?",opts:['To ensure suppliers are managed appropriately','To establish and nurture the links between the organization and its stakeholders at strategic and tactical levels','To set clear targets for service levels','To handle pre-defined user service requests'],correct:1,explain:"Relationship management = establish and nurture stakeholder links at strategic and tactical levels. Broader than supplier management."},
+{id:'l6_08',lo:'LO6',q:"What is the purpose of 'IT asset management'?",opts:['To protect information needed by the organization','To plan and manage the full lifecycle of all IT assets to maximize value, control costs, and manage risks','To ensure accurate information about configuration of services and CIs is available','To move new or changed components to live environments'],correct:1,explain:"IT asset management = full lifecycle management (plan, acquire, use, maintain, dispose) of all IT assets."},
+{id:'l6_09',lo:'LO6',q:"What is the purpose of 'release management'?",opts:['To move new or changed components to live environments','To make new and changed services and features available for use','To ensure accurate configuration information is available','To restore normal service operation as quickly as possible'],correct:1,explain:"Release management = making new/changed services and features available for use. Deployment (moving to live) is separate."},
+{id:'l6_10',lo:'LO6',q:"What is the purpose of 'service configuration management'?",opts:['To plan and manage the full lifecycle of IT assets','To ensure accurate and reliable information about the configuration of services and CIs is available when and where needed','To monitor services and record changes of state','To manage suppliers and their performance'],correct:1,explain:"Service configuration management = accurate, reliable CI data available when needed. Supports incident, problem, change, and asset management."},
+{id:'l6_11',lo:'LO6',q:"What is the purpose of 'monitoring and event management'?",opts:['To minimize the negative impact of incidents','To reduce likelihood and impact of incidents by managing known errors','To systematically observe services and service components and record and report selected changes of state','To ensure services are delivered according to agreed specifications'],correct:2,explain:"Monitoring and event management = observe, record, report changes of state (events)."},
+{id:'l6_12',lo:'LO6',q:"What is a 'change' in ITIL 4?",opts:['Any unplanned interruption to a service','The addition, modification, or removal of anything that could directly or indirectly affect services','A cause or potential cause of one or more incidents','A version of a service made available for use'],correct:1,explain:"Change = addition, modification, or removal of anything that could affect services. Broad definition covering hardware, software, processes, documentation."},
+{id:'l6_13',lo:'LO6',q:"What is the purpose of 'deployment management'?",opts:['To make new and changed services available for use','To move new or changed hardware, software, documentation, or processes to live environments','To manage the full lifecycle of IT assets','To ensure configuration information is accurate and available'],correct:1,explain:"Deployment management = physically moving components to live (or test/staging) environments."},
+{id:'l6_14',lo:'LO6',q:"What is a 'problem' in ITIL 4?",opts:['An unplanned interruption to a service or reduction in quality','A cause or potential cause of one or more incidents','A component that needs to be managed to deliver a service','A change of state with significance for service management'],correct:1,explain:"Problem = a cause, or potential cause, of one or more incidents. Investigated to prevent future incidents."},
+{id:'l6_15',lo:'LO6',q:"What is a 'workaround'?",opts:['A permanent solution to a problem','A change request raised to fix a known error','A solution that reduces or eliminates the impact of an incident or problem when a full resolution is not yet available','A version of a service made available for use'],correct:2,explain:"Workaround = temporary measure reducing impact while the real fix is pending. Some become permanent if a fix isn't viable."},
+// LO7
+{id:'l7_01',lo:'LO7',q:"What is the FIRST step of the Continual Improvement Model?",opts:['Where are we now?','How do we get there?','What is the vision?','Where do we want to be?'],correct:2,explain:"Step 1 = 'What is the vision?' — defines the vision and provides context for all subsequent steps."},
+{id:'l7_02',lo:'LO7',q:"What does step 2 ('Where are we now?') establish?",opts:['The target state and SMART objectives','The improvement plan and timeline','The current state baseline through objective measurement','The stakeholders who will approve the budget'],correct:2,explain:"Step 2 = current state assessment. Establish the baseline (Point A). Without knowing where you are, you can't measure improvement."},
+{id:'l7_03',lo:'LO7',q:"What is the purpose of step 3 ('Where do we want to be?')?",opts:['To take action on the improvement plan','To validate whether results were achieved','To perform a gap analysis and define SMART objectives and KPIs for the target state','To identify improvement ideas and log them in the CIR'],correct:2,explain:"Step 3 = gap analysis between current and desired states. Define SMART objectives, CSFs, and KPIs. Target state = progress toward vision, not the whole vision at once."},
+{id:'l7_04',lo:'LO7',q:"What does step 6 ('Did we get there?') validate?",opts:['The vision and overall direction','Both whether objectives were achieved AND whether those objectives are still relevant','The current baseline before starting improvement','The stakeholders involved in the improvement'],correct:1,explain:"Step 6 checks: Did we achieve the objectives? AND Are those objectives still relevant? If not achieved → new iteration."},
+{id:'l7_05',lo:'LO7',q:"What is the purpose of step 7 ('How do we keep the momentum going?')?",opts:['To define the next improvement initiative immediately','To market successes, reinforce new methods, and embed changes so they don\'t revert','To start a new assessment of the current state','To close the CIR entry and archive the results'],correct:1,explain:"Step 7 = sustain the change. Market success. Embed improvements so they don't revert. Communicate lessons learned transparently if failed."},
+{id:'l7_06',lo:'LO7',q:"What is a Continual Improvement Register (CIR)?",opts:['A database or structured document to track and manage improvement ideas from identification through to final action','A mandatory ITIL tool for recording incidents','A list of all known errors in the organization','An SLA monitoring dashboard'],correct:0,explain:"CIR = database or structured document tracking improvement ideas from identification to completion. Multiple CIRs can exist at different levels."},
+{id:'l7_07',lo:'LO7',q:"Which type of change is pre-authorized and does NOT require additional authorization each time?",opts:['Standard change','Normal change','Emergency change','Major change'],correct:0,explain:"Standard changes = low-risk, pre-authorized, well-understood. Risk assessed once when procedure is created. 'Major change' is not an ITIL 4 term."},
+{id:'l7_08',lo:'LO7',q:"Which type of change must be implemented as quickly as possible due to urgency?",opts:['Standard change','Normal change','Emergency change','Expedited change'],correct:2,explain:"Emergency changes = implemented ASAP to resolve an incident or apply a critical security patch. Expedited assessment/authorization. 'Expedited change' is not an ITIL 4 term."},
+{id:'l7_09',lo:'LO7',q:"What is a 'change authority'?",opts:['The team responsible for deploying changes to live environments','The person or group who authorizes a change to proceed','The document that schedules all planned changes','The risk assessment process for evaluating changes'],correct:1,explain:"Change authority = the person or group who authorizes a change. Correct authority must be assigned to each change type for efficiency."},
+{id:'l7_10',lo:'LO7',q:"What is a 'change schedule' used for?",opts:['Recording CI relationships in the CMDB','Planning changes, communicating them, avoiding conflicts, assigning resources, and supporting post-deployment reviews','Documenting the steps to implement a standard change','Tracking the status of incidents linked to changes'],correct:1,explain:"The change schedule is used to plan, communicate, avoid conflicts between changes, assign resources, and support post-deployment reviews."},
+{id:'l7_11',lo:'LO7',q:"What is the purpose of incident management?",opts:['To reduce the likelihood and impact of incidents by identifying root causes','To minimize the negative impact of incidents by restoring normal service operation as quickly as possible','To set clear business-based targets for service levels','To capture demand for incident resolution and service requests'],correct:1,explain:"Incident management = restore normal service ASAP. Root cause analysis is problem management. Speed of restoration is the priority."},
+{id:'l7_12',lo:'LO7',q:"What is 'swarming' in incident management?",opts:['Escalating an incident through multiple support tiers in sequence','A technique where many stakeholders work together initially on an incident until the best person to continue is identified','Closing an incident without full resolution','Automatically routing incidents to specialist teams based on category'],correct:1,explain:"Swarming = collective initial response where multiple stakeholders work together. As clarity emerges about who's best placed, others step away."},
+{id:'l7_13',lo:'LO7',q:"What are the three phases of problem management?",opts:['Logging, investigation, resolution','Detection, escalation, closure','Problem identification, problem control, error control','Analysis, workaround, change request'],correct:2,explain:"Three phases: (1) Problem identification. (2) Problem control — prioritize, analyse, document workarounds and known errors. (3) Error control — manage known errors, find permanent solutions."},
+{id:'l7_14',lo:'LO7',q:"What is the purpose of problem management?",opts:['To restore service as quickly as possible after an incident','To reduce the likelihood and impact of incidents by identifying causes and managing workarounds and known errors','To set clear business-based service level targets','To handle pre-defined user service requests'],correct:1,explain:"Problem management = prevent future incidents and reduce impact of those that can't be prevented."},
+{id:'l7_15',lo:'LO7',q:"A service request is BEST described as which of the following?",opts:['An unplanned interruption to a service requiring immediate restoration','A pre-defined, user-initiated request that is a normal part of service delivery','A change to infrastructure that requires full change authorization','A report of a suspected security breach'],correct:1,explain:"Service requests are normal, expected, pre-agreed service actions — not failures. They use standard fulfilment workflows."},
+{id:'l7_16',lo:'LO7',q:"Which statement about service request management is TRUE?",opts:['Service requests always represent failures and should be logged as incidents','Service requests should be standardized and automated to the greatest degree possible','All service requests require formal change authorization before fulfilment','Service requests are always handled by technical support teams, not the service desk'],correct:1,explain:"Service requests should be standardized and automated wherever possible. Some require approval (financial/security) but many can be auto-fulfilled."},
+{id:'l7_17',lo:'LO7',q:"What is the purpose of the service desk practice?",opts:['To set clear business-based targets for service performance','To handle pre-defined, user-initiated service requests','To capture demand for incident resolution and service requests, and act as the single point of contact for users','To minimize the negative impact of incidents by restoring service quickly'],correct:2,explain:"Service desk = capture demand (incidents + service requests) AND single point of contact. Uses other practices to fulfil its purpose."},
+{id:'l7_18',lo:'LO7',q:"What does a service desk primarily focus on?",opts:['Technical resolution of all IT issues','People and business needs, not just technical matters','Implementing changes and releases','Managing supplier relationships'],correct:1,explain:"The service desk focuses on people and business, not just technical issues. Staff need empathy and communication skills as much as technical knowledge."},
+{id:'l7_19',lo:'LO7',q:"What is the 'watermelon SLA' effect?",opts:['When SLAs are too complex for customers to understand','When an SLA appears green (all metrics met) on the outside but the customer is actually dissatisfied — red on the inside','When SLA targets are deliberately set too low to guarantee achievement','When service reports are delivered late'],correct:1,explain:"Watermelon SLA = green outside (metrics met), red inside (customer unhappy). Happens when metrics don't reflect actual customer experience."},
+{id:'l7_20',lo:'LO7',q:"What makes a good Service Level Agreement (SLA)?",opts:['It should be as detailed and technical as possible to cover all eventualities','It should relate to defined outcomes, be simply written, and represent genuine agreement with stakeholders','It should be one-sided, drafted entirely by the service provider','It should be reviewed only when a service level is breached'],correct:1,explain:"A good SLA: relates to a defined service, focuses on outcomes, is simply written, and represents genuine engagement with the customer."},
+{id:'l7_21',lo:'LO7',q:"Which is an example of a standard change?",opts:['Deploying a major new ERP system across the organization','Applying a pre-tested monthly security patch to standard workstations','Rolling back a failed database migration during an incident','Installing a new type of server not previously used in the environment'],correct:1,explain:"Standard changes = low-risk, pre-authorized, well-understood. A monthly patch on standard workstations is pre-tested and pre-approved — no new authorization needed."},
+{id:'l7_22',lo:'LO7',q:"Why is documenting a workaround important before a permanent fix is available?",opts:['It closes the problem record permanently','It enables consistent, faster incident resolution while the fix is pending, without repeated root cause investigation','It replaces the need to raise a change request','It moves responsibility to the user to resolve the issue themselves'],correct:1,explain:"Documented workarounds allow consistent, fast incident resolution without reinvestigating from scratch each time."},
+{id:'l7_23',lo:'LO7',q:"Which practice is the single point of contact for the service provider with all users?",opts:['Incident management','Problem management','Service desk','Service level management'],correct:2,explain:"Service desk = single point of contact (SPOC) and entry point for all users."},
+{id:'l7_24',lo:'LO7',q:"Service level management uses 'customer engagement' to do what?",opts:['Negotiate the lowest possible service targets','Understand actual ongoing needs and ensure targets reflect current business requirements','Avoid having to report negative service performance','Automate service level monitoring and reporting'],correct:1,explain:"SLM customer engagement = ongoing dialogue to understand current (evolving) needs. Avoids watermelon SLA effect."},
+{id:'l7_25',lo:'LO7',q:"Which incident management technique involves assembling a cross-functional team for complex incidents?",opts:['Escalation','Categorization','Prioritization','Swarming'],correct:3,explain:"Swarming = bringing multiple stakeholders together quickly for a complex incident rather than passing it sequentially through tiers."}
+];
+
+// ── State ──
+const STORAGE_KEY = 'itil4_attempts';
+let currentQuestions = [];
 let examAnswers = {};
 let examSubmitted = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickQuestions() {
+  const byLO = {};
+  QUESTION_BANK.forEach(q => { (byLO[q.lo] = byLO[q.lo]||[]).push(q); });
+  const targets = {LO1:6,LO2:6,LO3:4,LO4:4,LO5:5,LO6:8,LO7:7};
+  let selected = [];
+  Object.entries(targets).forEach(([lo, n]) => {
+    selected = selected.concat(shuffle(byLO[lo]||[]).slice(0, n));
+  });
+  return shuffle(selected);
+}
 
 function selectOption(qId, optId, correct) {
   if (examSubmitted) return;
   examAnswers[qId] = { chosen: optId, correct: correct };
-  // highlight selected
-  document.querySelectorAll(`.eq[data-q="${qId}"] .opt`).forEach(el => {
-    el.classList.remove('selected');
-  });
+  document.querySelectorAll(`.eq[data-q="${qId}"] .opt`).forEach(el => el.classList.remove('selected'));
   document.querySelector(`.eq[data-q="${qId}"] .opt[data-o="${optId}"]`).classList.add('selected');
 }
 
@@ -1980,607 +2105,175 @@ function submitExam() {
   if (examSubmitted) return;
   examSubmitted = true;
   let score = 0;
-  const total = document.querySelectorAll('.eq').length;
-  document.querySelectorAll('.eq').forEach(qEl => {
-    const qId = qEl.dataset.q;
+  const loResults = {LO1:{correct:0,total:0},LO2:{correct:0,total:0},LO3:{correct:0,total:0},LO4:{correct:0,total:0},LO5:{correct:0,total:0},LO6:{correct:0,total:0},LO7:{correct:0,total:0}};
+
+  currentQuestions.forEach((q, idx) => {
+    const qId = 'q'+(idx+1);
     const ans = examAnswers[qId];
-    const opts = qEl.querySelectorAll('.opt');
-    opts.forEach(opt => {
-      if (opt.dataset.correct === 'true') opt.classList.add('correct-opt');
-    });
+    loResults[q.lo].total++;
+    const qEl = document.querySelector(`.eq[data-q="${qId}"]`);
+    qEl.querySelectorAll('.opt').forEach(opt => { if (opt.dataset.correct==='true') opt.classList.add('correct-opt'); });
     if (ans) {
       const chosen = qEl.querySelector(`.opt[data-o="${ans.chosen}"]`);
-      if (ans.correct) { score++; chosen.classList.add('correct-opt'); }
+      if (ans.correct) { score++; loResults[q.lo].correct++; chosen.classList.add('correct-opt'); }
       else chosen.classList.add('wrong-opt');
     }
     qEl.querySelector('.eq-explain').style.display = 'block';
   });
+
+  const total = currentQuestions.length;
   const pct = Math.round((score/total)*100);
-  const pass = score >= 26;
-  document.getElementById('exam-result').innerHTML = `
-    <div style="font-size:28px;font-weight:800;color:${pass?'var(--accent3)':'var(--accent4)'};">${score}/${total} — ${pct}%</div>
-    <div style="font-size:16px;margin-top:6px;color:${pass?'var(--accent3)':'var(--accent4)'};">${pass?'✓ PASS':'✗ FAIL — need 26/40 (65%)'}</div>
-    <div style="font-size:13px;color:#b8bdd8;margin-top:8px;">Review highlighted answers below. Green = correct. Red = your wrong answer.</div>
-  `;
-  document.getElementById('exam-result').style.display = 'block';
+  const pass = pct >= 65;
+  const date = new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  const attempts = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+  attempts.push({ date, score, total, pct, pass, loResults });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(attempts));
+
+  const loLabels = {LO1:'LO1 — Key Concepts',LO2:'LO2 — Guiding Principles',LO3:'LO3 — Four Dimensions',LO4:'LO4 — SVS',LO5:'LO5 — Value Chain',LO6:'LO6 — 15 Practices',LO7:'LO7 — 7 Practices (Deep)'};
+  const loRows = Object.entries(loResults).map(([lo,r]) => {
+    if (!r.total) return '';
+    const p = Math.round((r.correct/r.total)*100);
+    const col = p>=70?'#2ab97a':p>=50?'#e8a030':'#e86f3a';
+    return `<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+        <span style="color:#c0c5db;">${loLabels[lo]}</span>
+        <span style="font-weight:700;color:${col};">${r.correct}/${r.total} (${p}%)</span>
+      </div>
+      <div style="height:6px;background:var(--border);border-radius:3px;"><div style="height:6px;width:${p}%;background:${col};border-radius:3px;transition:width .5s;"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('exam-result-anchor').innerHTML = `
+    <div style="margin-top:40px;border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+      <div style="background:var(--surface2);padding:24px;text-align:center;border-bottom:1px solid var(--border);">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">${date}</div>
+        <div style="font-size:42px;font-weight:800;color:${pass?'var(--accent3)':'var(--accent4)'};">${score}/${total}</div>
+        <div style="font-size:22px;font-weight:700;color:${pass?'var(--accent3)':'var(--accent4)'};">${pct}% — ${pass?'✓ PASS':'✗ FAIL'}</div>
+        <div style="font-size:13px;color:#b8bdd8;margin-top:8px;">Pass mark: 26/40 (65%) · Green = correct · Red = your wrong answer</div>
+      </div>
+      <div style="padding:20px 24px;background:var(--surface);">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Score by Learning Outcome</div>
+        ${loRows}
+      </div>
+    </div>`;
+
+  document.getElementById('exam-result-anchor').scrollIntoView({behavior:'smooth', block:'start'});
   document.getElementById('submit-exam-btn').style.display = 'none';
+  renderHistory();
 }
 
 function resetExam() {
   examAnswers = {};
   examSubmitted = false;
-  document.querySelectorAll('.eq .opt').forEach(el => {
-    el.classList.remove('selected','correct-opt','wrong-opt');
-  });
-  document.querySelectorAll('.eq-explain').forEach(el => el.style.display = 'none');
-  document.getElementById('exam-result').style.display = 'none';
+  currentQuestions = pickQuestions();
+  buildExamQuestions();
+  document.getElementById('exam-result-anchor').innerHTML = '';
   document.getElementById('submit-exam-btn').style.display = 'block';
+  document.getElementById('mock-exam').scrollIntoView({behavior:'smooth', block:'start'});
 }
+
+function buildExamQuestions() {
+  const container = document.getElementById('exam-questions');
+  container.innerHTML = '';
+  currentQuestions.forEach((q, idx) => {
+    const qId = 'q'+(idx+1);
+    const opts = shuffle(q.opts.map((o, oi) => ({text:o, isCorrect: oi===q.correct})));
+    const optsHTML = opts.map((o, oi) => {
+      const letter = String.fromCharCode(65+oi);
+      return `<div class="opt" data-o="${letter.toLowerCase()}" data-correct="${o.isCorrect}" onclick="selectOption('${qId}','${letter.toLowerCase()}',${o.isCorrect})">${letter}. ${o.text}</div>`;
+    }).join('');
+    container.innerHTML += `
+      <div class="eq" data-q="${qId}">
+        <div class="eq-head"><span class="qnum">Q${idx+1} · ${q.lo}</span>${q.q}</div>
+        <div class="eq-opts">${optsHTML}</div>
+        <div class="eq-explain">${q.explain}</div>
+      </div>`;
+  });
+}
+
+function renderHistory() {
+  const attempts = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+  const el = document.getElementById('attempt-history');
+  if (!attempts.length) { el.innerHTML = '<p style="color:var(--muted);font-size:13px;">No attempts yet — submit your first exam above.</p>'; return; }
+  const loLabels = {LO1:'LO1',LO2:'LO2',LO3:'LO3',LO4:'LO4',LO5:'LO5',LO6:'LO6',LO7:'LO7'};
+  el.innerHTML = [...attempts].reverse().map((a) => {
+    const col = a.pass ? 'var(--accent3)' : 'var(--accent4)';
+    const weak = Object.entries(a.loResults||{})
+      .filter(([,r]) => r.total>0 && (r.correct/r.total)<0.7)
+      .map(([lo,r]) => `<span style="background:rgba(232,111,58,.15);color:var(--accent4);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;margin-right:4px;">${lo} ${Math.round(r.correct/r.total*100)}%</span>`)
+      .join('');
+    const loDetail = Object.entries(a.loResults||{}).filter(([,r])=>r.total>0).map(([lo,r])=>{
+      const p=Math.round(r.correct/r.total*100);
+      const c=p>=70?'#2ab97a':p>=50?'#e8a030':'#e86f3a';
+      return `<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span style="color:#c0c5db;">${lo}</span><span style="color:${c};font-weight:700;">${r.correct}/${r.total} (${p}%)</span></div>`;
+    }).join('');
+    return `<div style="border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden;">
+      <div style="background:var(--surface2);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <div>
+          <span style="font-size:12px;color:var(--muted);">${a.date} · </span>
+          <span style="font-size:15px;font-weight:700;color:${col};">${a.score}/${a.total} (${a.pct}%)</span>
+          <span style="font-size:13px;font-weight:700;color:${col};margin-left:6px;">${a.pass?'✓ PASS':'✗ FAIL'}</span>
+        </div>
+        <span style="color:var(--muted);">▾</span>
+      </div>
+      <div style="display:none;padding:14px 16px;background:var(--surface);border-top:1px solid var(--border);">
+        ${loDetail}
+        ${weak ? `<div style="margin-top:12px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Needs attention</div>${weak}` : '<div style="font-size:13px;color:#2ab97a;margin-top:8px;">✓ All areas ≥ 70%</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  currentQuestions = pickQuestions();
+  buildExamQuestions();
+  renderHistory();
+});
 </script>
 
 <style>
-  /* ── MOCK EXAM STYLES ── */
   #mock-exam { margin-bottom: 64px; scroll-margin-top: 32px; }
   .eq { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
   .eq-head { background: var(--surface2); padding: 14px 18px; font-weight: 600; font-size: 14px; line-height: 1.5; }
   .eq-head .qnum { color: #b8bedd; font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px; }
   .eq-opts { padding: 12px 18px; background: var(--surface); display: grid; gap: 8px; }
-  .opt {
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: border-color .15s, background .15s;
-  }
+  .opt { padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; cursor: pointer; transition: border-color .15s, background .15s; -webkit-tap-highlight-color: transparent; }
   .opt:hover { border-color: var(--accent); background: rgba(79,126,248,.06); }
   .opt.selected { border-color: var(--accent); background: rgba(79,126,248,.12); }
   .opt.correct-opt { border-color: var(--accent3) !important; background: rgba(42,185,122,.12) !important; color: #a0f0cc; }
   .opt.wrong-opt { border-color: var(--accent4) !important; background: rgba(232,111,58,.12) !important; color: #f0b090; }
-  .eq-explain {
-    display: none;
-    padding: 12px 18px;
-    background: var(--def-bg);
-    border-top: 1px solid var(--border);
-    font-size: 13px;
-    color: #c8ccde;
-    line-height: 1.65;
-  }
-  .eq-explain strong { color: var(--accent3); }
-  #exam-result {
-    display: none;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  .exam-btn {
-    display: inline-block;
-    padding: 12px 28px;
-    border-radius: 8px;
-    border: none;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-right: 10px;
-    margin-bottom: 24px;
-  }
+  .eq-explain { display: none; padding: 12px 18px; background: var(--def-bg); border-top: 1px solid var(--border); font-size: 13px; color: #c8ccde; line-height: 1.65; }
+  .exam-btn { display: inline-block; padding: 12px 28px; border-radius: 8px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; margin-right: 10px; margin-bottom: 10px; -webkit-tap-highlight-color: transparent; }
   #submit-exam-btn { background: var(--accent); color: #fff; }
   #reset-exam-btn { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  @media (max-width: 768px) { .exam-btn { width: 100%; text-align: center; margin-right: 0; box-sizing: border-box; } }
 </style>
 
-<!-- ══════════════════════════════════════ -->
-<!-- MOCK EXAM — injected into main via JS  -->
-<!-- ══════════════════════════════════════ -->
 <script>
-// Build exam section and inject into main
-const examHTML = `
+document.querySelector('main').insertAdjacentHTML('beforeend', `
 <section id="mock-exam">
-  <h2 style="font-size:22px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px;">
-    Mock Exam — 40 Questions
-    <span style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--tag-bg);color:var(--accent);border:1px solid var(--def-border);">Exam Style</span>
+  <h2 style="font-size:22px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    Mock Exam
+    <span style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--tag-bg);color:var(--accent);border:1px solid var(--def-border);">110 question pool · 40 drawn randomly</span>
     <span style="margin-left:auto;font-size:12px;font-weight:600;color:var(--accent4);background:rgba(232,111,58,.12);padding:3px 9px;border-radius:4px;">40 marks</span>
   </h2>
   <p style="color:#b8bdd8;font-size:13px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);">
-    Full-length practice exam in exam style. Select one answer per question, then click Submit. No negative marking — always guess.
+    40 questions drawn randomly each attempt from a 110-question pool. Answer options are also shuffled. No negative marking — always guess.
   </p>
-
-  <div id="exam-result"></div>
-
-  <!-- Q1 -->
-  <div class="eq" data-q="q1">
-    <div class="eq-head"><span class="qnum">Q1 · LO 1</span>What is the definition of a 'service' in ITIL 4?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q1','a',false)">A. A set of specialized organizational capabilities for enabling value for customers</div>
-      <div class="opt" data-o="b" data-correct="true" onclick="selectOption('q1','b',true)">B. A means of enabling value co-creation by facilitating outcomes that customers want to achieve, without the customer having to manage specific costs and risks</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q1','c',false)">C. A tangible or intangible deliverable of an activity</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q1','d',false)">D. The perceived benefits, usefulness, and importance of something</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: B.</strong> Option A is the definition of <em>service management</em>. Option C is an <em>output</em>. Option D is <em>value</em>. A service specifically facilitates outcomes without the customer managing the associated costs and risks.</div>
-  </div>
-
-  <!-- Q2 -->
-  <div class="eq" data-q="q2">
-    <div class="eq-head"><span class="qnum">Q2 · LO 1</span>Which term describes 'fit for purpose'?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q2','a',false)">A. Warranty</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q2','b',false)">B. Value</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q2','c',true)">C. Utility</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q2','d',false)">D. Outcome</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Utility = "what the service does" = fit for <em>purpose</em>. Warranty = "how the service performs" = fit for <em>use</em>. Both are required for value.</div>
-  </div>
-
-  <!-- Q3 -->
-  <div class="eq" data-q="q3">
-    <div class="eq-head"><span class="qnum">Q3 · LO 1</span>Who authorizes the budget for service consumption?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q3','a',false)">A. Customer</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q3','b',false)">B. User</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q3','c',false)">C. Service provider</div>
-      <div class="opt" data-o="d" data-correct="true" onclick="selectOption('q3','d',true)">D. Sponsor</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: D.</strong> Sponsor = authorizes budget. Customer = defines requirements and takes responsibility for outcomes. User = uses the service.</div>
-  </div>
-
-  <!-- Q4 -->
-  <div class="eq" data-q="q4">
-    <div class="eq-head"><span class="qnum">Q4 · LO 1</span>What is the difference between an output and an outcome?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q4','a',false)">A. An output is intangible; an outcome is always tangible</div>
-      <div class="opt" data-o="b" data-correct="true" onclick="selectOption('q4','b',true)">B. An output is a deliverable of an activity; an outcome is a result for a stakeholder enabled by one or more outputs</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q4','c',false)">C. An outcome is a deliverable of an activity; an output is a result for a stakeholder</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q4','d',false)">D. Outputs and outcomes mean the same thing in ITIL 4</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: B.</strong> Output = deliverable (e.g. the wedding album). Outcome = result the stakeholder achieves (e.g. preserved memories). Providers produce outputs; consumers achieve outcomes through those outputs.</div>
-  </div>
-
-  <!-- Q5 -->
-  <div class="eq" data-q="q5">
-    <div class="eq-head"><span class="qnum">Q5 · LO 1</span>Which of the following is NOT a component of a service offering?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q5','a',false)">A. Goods</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q5','b',false)">B. Access to resources</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q5','c',false)">C. Service actions</div>
-      <div class="opt" data-o="d" data-correct="true" onclick="selectOption('q5','d',true)">D. Processes</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: D.</strong> A service offering may include: goods (ownership transferred), access to resources (no ownership transfer), and service actions (performed by provider). Processes are part of the value streams and processes dimension, not a service offering component.</div>
-  </div>
-
-  <!-- Q6 -->
-  <div class="eq" data-q="q6">
-    <div class="eq-head"><span class="qnum">Q6 · LO 1</span>How does ITIL 4 describe value co-creation?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q6','a',false)">A. Value is delivered by the service provider to the consumer who receives it passively</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q6','b',false)">B. Value is created solely by the service provider through efficient processes</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q6','c',true)">C. Value is co-created through active collaboration between providers and consumers</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q6','d',false)">D. Value can only be created when a formal service level agreement is in place</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> ITIL 4 explicitly moves away from the "delivery" model toward co-creation. Providers should not work in isolation to define value — consumers actively contribute to requirements, design, and even creation of the service.</div>
-  </div>
-
-  <!-- Q7 -->
-  <div class="eq" data-q="q7">
-    <div class="eq-head"><span class="qnum">Q7 · LO 2</span>Which guiding principle recommends starting with an assessment of what already exists rather than building from scratch?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q7','a',false)">A. Focus on value</div>
-      <div class="opt" data-o="b" data-correct="true" onclick="selectOption('q7','b',true)">B. Start where you are</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q7','c',false)">C. Keep it simple and practical</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q7','d',false)">D. Think and work holistically</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: B.</strong> "Start where you are" recommends investigating and observing the current state directly rather than starting from scratch. Removing what has been done without consideration is rarely wise or necessary.</div>
-  </div>
-
-  <!-- Q8 -->
-  <div class="eq" data-q="q8">
-    <div class="eq-head"><span class="qnum">Q8 · LO 2</span>An organization is rolling out a new IT service. Which guiding principle recommends releasing it first to a small group of users to gather feedback before full rollout?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q8','a',false)">A. Focus on value</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q8','b',false)">B. Keep it simple and practical</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q8','c',true)">C. Progress iteratively with feedback</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q8','d',false)">D. Collaborate and promote visibility</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> "Progress iteratively with feedback" recommends organizing work into smaller sections with feedback loops. Releasing to a pilot group first is a classic iteration that uses feedback before broader deployment.</div>
-  </div>
-
-  <!-- Q9 -->
-  <div class="eq" data-q="q9">
-    <div class="eq-head"><span class="qnum">Q9 · LO 2</span>Which statement BEST describes the principle 'Optimize and automate'?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q9','a',false)">A. Technology should always replace human intervention to reduce costs</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q9','b',false)">B. Automation should be the first step when improving any process</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q9','c',true)">C. Resources should be used to their best effect; eliminate waste and use technology where it adds value, but only after optimizing first</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q9','d',false)">D. Human intervention should be removed from all service management processes</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> The principle says to optimize first, THEN automate. Automating a broken or complex process just makes it fail faster. Human intervention should remain where it adds value — automation should not be applied blindly.</div>
-  </div>
-
-  <!-- Q10 -->
-  <div class="eq" data-q="q10">
-    <div class="eq-head"><span class="qnum">Q10 · LO 2</span>An IT team discovers a new monitoring tool that could improve service quality but decides not to implement it because the current monitoring is "good enough." Which guiding principle are they FAILING to apply?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q10','a',false)">A. Keep it simple and practical</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q10','b',false)">B. Start where you are</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q10','c',true)">C. Focus on value</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q10','d',false)">D. Progress iteratively with feedback</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> "Focus on value" — everything should map directly or indirectly to value. Avoiding an improvement that would increase value for customers is failing to focus on value. The principle also covers opportunity costs of inaction.</div>
-  </div>
-
-  <!-- Q11 -->
-  <div class="eq" data-q="q11">
-    <div class="eq-head"><span class="qnum">Q11 · LO 2</span>Which guiding principle states that work and its consequences should be made visible, hidden agendas avoided, and information shared to the greatest degree possible?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q11','a',false)">A. Think and work holistically</div>
-      <div class="opt" data-o="b" data-correct="true" onclick="selectOption('q11','b',true)">B. Collaborate and promote visibility</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q11','c',false)">C. Focus on value</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q11','d',false)">D. Optimize and automate</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: B.</strong> "Collaborate and promote visibility" specifically calls for making work visible, avoiding hidden agendas, and sharing information widely. When people are aware of what is happening and why, they are more willing to help.</div>
-  </div>
-
-  <!-- Q12 -->
-  <div class="eq" data-q="q12">
-    <div class="eq-head"><span class="qnum">Q12 · LO 3</span>Which of the four dimensions of service management is concerned with workflow management systems, knowledge bases, and analytical tools?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q12','a',false)">A. Organizations and people</div>
-      <div class="opt" data-o="b" data-correct="true" onclick="selectOption('q12','b',true)">B. Information and technology</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q12','c',false)">C. Partners and suppliers</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q12','d',false)">D. Value streams and processes</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: B.</strong> The Information and technology dimension covers the information and knowledge necessary for managing services, and the technologies required — including workflow management systems, knowledge bases, inventory systems, communication systems, and analytical tools.</div>
-  </div>
-
-  <!-- Q13 -->
-  <div class="eq" data-q="q13">
-    <div class="eq-head"><span class="qnum">Q13 · LO 3</span>What does PESTLE stand for in the context of external factors affecting the four dimensions?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q13','a',false)">A. People, Efficiency, Systems, Technology, Legal, Environment</div>
-      <div class="opt" data-o="b" data-correct="true" onclick="selectOption('q13','b',true)">B. Political, Economic, Social, Technological, Legal, Environmental</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q13','c',false)">C. Process, Enterprise, Service, Trend, Lifecycle, Evaluation</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q13','d',false)">D. Planning, Execution, Stakeholder, Transformation, Learning, Evolution</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: B.</strong> PESTLE = Political, Economic, Social, Technological, Legal, Environmental. These external factors constrain or influence how a service provider operates and affect all four dimensions.</div>
-  </div>
-
-  <!-- Q14 -->
-  <div class="eq" data-q="q14">
-    <div class="eq-head"><span class="qnum">Q14 · LO 4</span>What are the inputs to the ITIL Service Value System?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q14','a',false)">A. Products and services</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q14','b',false)">B. Guiding principles and governance</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q14','c',true)">C. Opportunity and demand</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q14','d',false)">D. Practices and the service value chain</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> The key inputs to the SVS are Opportunity (options to add value) and Demand (need or desire for products/services). The output is Value. Options B and D are components within the SVS, not inputs.</div>
-  </div>
-
-  <!-- Q15 -->
-  <div class="eq" data-q="q15">
-    <div class="eq-head"><span class="qnum">Q15 · LO 4</span>Which component of the SVS provides a set of interconnected activities to deliver a valuable product or service?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q15','a',false)">A. Guiding principles</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q15','b',false)">B. Governance</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q15','c',true)">C. Service value chain</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q15','d',false)">D. Continual improvement</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> The service value chain is defined as "a set of interconnected activities that an organization performs to deliver a valuable product or service to its consumers and to facilitate value realization." It sits at the centre of the SVS.</div>
-  </div>
-
-  <!-- Q16 -->
-  <div class="eq" data-q="q16">
-    <div class="eq-head"><span class="qnum">Q16 · LO 5</span>Which value chain activity ensures that stakeholder needs are understood and that good relationships are maintained?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q16','a',false)">A. Plan</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q16','b',false)">B. Improve</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q16','c',true)">C. Engage</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q16','d',false)">D. Deliver and support</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Engage's purpose is to "provide a good understanding of stakeholder needs, transparency, and continual engagement and good relationships with all stakeholders." It is also the only entry and exit point for all external party interactions.</div>
-  </div>
-
-  <!-- Q17 -->
-  <div class="eq" data-q="q17">
-    <div class="eq-head"><span class="qnum">Q17 · LO 5</span>Which of the following is a FIXED RULE of the service value chain?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q17','a',false)">A. All planning is performed via the Improve activity</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q17','b',false)">B. All improvements are initiated via the Plan activity</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q17','c',true)">C. All incoming and outgoing interactions with external parties are performed via Engage</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q17','d',false)">D. All value chain activities must be executed in sequence</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> The four fixed rules: all external interactions → Engage; all new resources → Obtain/Build; all planning → Plan; all improvements initiated → Improve. Activities do NOT need to be sequential; they combine into flexible value streams.</div>
-  </div>
-
-  <!-- Q18 -->
-  <div class="eq" data-q="q18">
-    <div class="eq-head"><span class="qnum">Q18 · LO 5</span>What is the purpose of the 'Design and transition' value chain activity?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q18','a',false)">A. To ensure service components are available when and where they are needed</div>
-      <div class="opt" data-o="b" data-correct="true" onclick="selectOption('q18','b',true)">B. To ensure that products and services continually meet stakeholder expectations for quality, costs, and time to market</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q18','c',false)">C. To ensure services are delivered and supported according to agreed specifications</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q18','d',false)">D. To provide a good understanding of stakeholder needs and continual engagement</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: B.</strong> Design and transition = quality, costs, and time to market. Option A = Obtain/Build. Option C = Deliver and support. Option D = Engage.</div>
-  </div>
-
-  <!-- Q19 -->
-  <div class="eq" data-q="q19">
-    <div class="eq-head"><span class="qnum">Q19 · LO 6</span>What is an 'event' in ITIL 4?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q19','a',false)">A. An unplanned interruption to a service</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q19','b',false)">B. A cause or potential cause of one or more incidents</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q19','c',true)">C. Any change of state that has significance for the management of a service or other CI</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q19','d',false)">D. A request from a user that initiates a service action</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> An event = any change of state with significance for service management. Option A = incident. Option B = problem. Option D = service request. Events are recognized through notifications from IT services, CIs, or monitoring tools.</div>
-  </div>
-
-  <!-- Q20 -->
-  <div class="eq" data-q="q20">
-    <div class="eq-head"><span class="qnum">Q20 · LO 6</span>What is a 'configuration item' (CI)?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q20','a',false)">A. Any financially valuable component that can contribute to an IT product or service</div>
-      <div class="opt" data-o="b" data-correct="true" onclick="selectOption('q20','b',true)">B. Any component that needs to be managed in order to deliver an IT service</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q20','c',false)">C. A version of a service that is made available for use</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q20','d',false)">D. A problem that has been analysed but not resolved</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: B.</strong> CI = any component that needs to be <em>managed</em> to deliver an IT service. Option A = IT asset (financially valuable). Option C = Release. Option D = Known error. Note: not all CIs are IT assets and not all IT assets are CIs.</div>
-  </div>
-
-  <!-- Q21 -->
-  <div class="eq" data-q="q21">
-    <div class="eq-head"><span class="qnum">Q21 · LO 6</span>What is the purpose of the 'information security management' practice?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q21','a',false)">A. To establish and nurture links between the organization and its stakeholders</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q21','b',false)">B. To plan and manage the full lifecycle of all IT assets</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q21','c',true)">C. To protect the information needed by the organization to conduct its business</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q21','d',false)">D. To ensure suppliers and their performances are managed appropriately</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Information security management protects information needed to conduct business — covering confidentiality, integrity, availability, authentication, and non-repudiation. Option A = relationship management. Option B = IT asset management. Option D = supplier management.</div>
-  </div>
-
-  <!-- Q22 -->
-  <div class="eq" data-q="q22">
-    <div class="eq-head"><span class="qnum">Q22 · LO 6</span>What is the purpose of the 'monitoring and event management' practice?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q22','a',false)">A. To minimize the negative impact of incidents by restoring normal service operation quickly</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q22','b',false)">B. To reduce the likelihood and impact of incidents by managing workarounds and known errors</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q22','c',true)">C. To systematically observe services and service components, and record and report selected changes of state identified as events</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q22','d',false)">D. To ensure accurate information about the configuration of services is available when needed</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Monitoring and event management = observe, record, and report changes of state (events). Option A = incident management. Option B = problem management. Option D = service configuration management.</div>
-  </div>
-
-  <!-- Q23 -->
-  <div class="eq" data-q="q23">
-    <div class="eq-head"><span class="qnum">Q23 · LO 6</span>Which practice is responsible for moving new or changed components to live environments?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q23','a',false)">A. Release management</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q23','b',false)">B. Change enablement</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q23','c',false)">C. Service configuration management</div>
-      <div class="opt" data-o="d" data-correct="true" onclick="selectOption('q23','d',true)">D. Deployment management</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: D.</strong> Deployment management = moving new or changed hardware, software, documentation, or processes to live (and test/staging) environments. Release management = making new services/features <em>available for use</em>. These are related but distinct.</div>
-  </div>
-
-  <!-- Q24 -->
-  <div class="eq" data-q="q24">
-    <div class="eq-head"><span class="qnum">Q24 · LO 7</span>What is the FIRST step of the ITIL continual improvement model?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q24','a',false)">A. Where are we now?</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q24','b',false)">B. How do we get there?</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q24','c',true)">C. What is the vision?</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q24','d',false)">D. Where do we want to be?</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Step 1 = "What is the vision?" — defines the vision and provides context for all subsequent decisions. Step 2 = "Where are we now?" (current state). Step 3 = "Where do we want to be?" Step 4 = "How do we get there?"</div>
-  </div>
-
-  <!-- Q25 -->
-  <div class="eq" data-q="q25">
-    <div class="eq-head"><span class="qnum">Q25 · LO 7</span>What is a 'known error'?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q25','a',false)">A. An unplanned interruption to a service</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q25','b',false)">B. A cause or potential cause of one or more incidents</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q25','c',true)">C. A problem that has been analysed but has not been resolved</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q25','d',false)">D. A solution that reduces the impact of an incident for which a full resolution is not yet available</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Known error = problem that's been analysed (faulty components identified) but not yet fixed. Option A = incident. Option B = problem. Option D = workaround.</div>
-  </div>
-
-  <!-- Q26 -->
-  <div class="eq" data-q="q26">
-    <div class="eq-head"><span class="qnum">Q26 · LO 7</span>Which of the following change types is pre-authorized and does NOT require additional authorization each time it is implemented?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="true" onclick="selectOption('q26','a',true)">A. Standard change</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q26','b',false)">B. Normal change</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q26','c',false)">C. Emergency change</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q26','d',false)">D. Major change</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: A.</strong> Standard changes are low-risk, pre-authorized, well-understood, and fully documented. They do NOT need additional authorization each time — only when the procedure itself is first created or modified. "Major change" is not a defined ITIL 4 change type.</div>
-  </div>
-
-  <!-- Q27 -->
-  <div class="eq" data-q="q27">
-    <div class="eq-head"><span class="qnum">Q27 · LO 7</span>Which technique involves many different stakeholders working together on an incident until it is clear who is best placed to continue?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q27','a',false)">A. Escalation</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q27','b',false)">B. Triage</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q27','c',true)">C. Swarming</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q27','d',false)">D. Categorization</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Swarming = many stakeholders work together initially on a complex incident. As it becomes clear who is best placed to continue, others move on. It's used for complex or major incidents needing collective analysis.</div>
-  </div>
-
-  <!-- Q28 -->
-  <div class="eq" data-q="q28">
-    <div class="eq-head"><span class="qnum">Q28 · LO 7</span>What are the three phases of problem management?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q28','a',false)">A. Logging, investigation, resolution</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q28','b',false)">B. Detection, escalation, closure</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q28','c',true)">C. Problem identification, problem control, error control</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q28','d',false)">D. Analysis, workaround, change request</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> The three phases are: (1) Problem identification — log and identify problems. (2) Problem control — prioritize, analyse, document workarounds and known errors. (3) Error control — manage known errors, find permanent solutions, raise change requests if justified.</div>
-  </div>
-
-  <!-- Q29 -->
-  <div class="eq" data-q="q29">
-    <div class="eq-head"><span class="qnum">Q29 · LO 7</span>What is the purpose of the service desk practice?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q29','a',false)">A. To set clear business-based targets for service levels</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q29','b',false)">B. To handle pre-defined, user-initiated service requests</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q29','c',false)">C. To minimize the negative impact of incidents</div>
-      <div class="opt" data-o="d" data-correct="true" onclick="selectOption('q29','d',true)">D. To capture demand for incident resolution and service requests, and act as the single point of contact for users</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: D.</strong> The service desk's purpose covers both capturing demand (incident + service requests) AND being the single point of contact. Option A = SLM. Option B = service request management. Option C = incident management. The service desk is the coordination point — it uses other practices to fulfil its purpose.</div>
-  </div>
-
-  <!-- Q30 -->
-  <div class="eq" data-q="q30">
-    <div class="eq-head"><span class="qnum">Q30 · LO 7</span>What is the 'watermelon SLA' effect?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q30','a',false)">A. When SLAs are too complicated for customers to understand</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q30','b',false)">B. When SLA targets are deliberately set too low to guarantee achievement</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q30','c',true)">C. When an SLA appears green (all metrics met) on the outside, but the customer is actually dissatisfied — red on the inside</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q30','d',false)">D. When service reports are delayed and contain stale data</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> The watermelon SLA effect occurs when metrics-based reporting shows green (success) but customer experience is actually poor. For example: 99.9% uptime met, but the 0.1% downtime occurred during the customer's critical business window. SLAs must reflect actual customer experience, not just individual operational metrics.</div>
-  </div>
-
-  <!-- Q31 -->
-  <div class="eq" data-q="q31">
-    <div class="eq-head"><span class="qnum">Q31 · LO 7</span>Which statement BEST describes the difference between a service request and an incident?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q31','a',false)">A. Service requests are always handled by the service desk; incidents are always escalated to technical teams</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q31','b',false)">B. Incidents are lower priority than service requests</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q31','c',true)">C. A service request is a pre-defined, expected part of service delivery; an incident is an unplanned interruption or degradation of service</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q31','d',false)">D. Service requests always require change authorization; incidents do not</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Service requests are normal, pre-agreed, expected service actions (not failures). Incidents are unplanned failures. Both can be handled by the service desk, but incidents require restoration while service requests use standard fulfilment workflows.</div>
-  </div>
-
-  <!-- Q32 -->
-  <div class="eq" data-q="q32">
-    <div class="eq-head"><span class="qnum">Q32 · LO 7</span>In the continual improvement model, what does step 3 'Where do we want to be?' involve?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q32','a',false)">A. Creating a plan and executing improvement actions</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q32','b',false)">B. Assessing the current state of services and measuring baselines</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q32','c',true)">C. Performing a gap analysis and defining SMART objectives, CSFs, and KPIs for the target state</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q32','d',false)">D. Validating whether the expected results were achieved</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Step 3 defines the target state (Point B). It involves gap analysis, setting SMART objectives (Specific, Measurable, Achievable, Relevant, Time-bound), CSFs, and KPIs. Option B = step 2. Option A = step 4/5. Option D = step 6.</div>
-  </div>
-
-  <!-- Q33 -->
-  <div class="eq" data-q="q33">
-    <div class="eq-head"><span class="qnum">Q33 · LO 6/7</span>Which of the following BEST describes a 'workaround'?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q33','a',false)">A. A permanent solution to a problem</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q33','b',false)">B. A change request raised to fix a known error</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q33','c',true)">C. A solution that reduces or eliminates the impact of an incident or problem for which a full resolution is not yet available</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q33','d',false)">D. A documented agreement between provider and customer on service quality</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> A workaround is a temporary measure — not a permanent fix. It can reduce or eliminate impact while the underlying problem is being investigated. Some workarounds become permanent ways of dealing with problems when resolution is not viable or cost-effective.</div>
-  </div>
-
-  <!-- Q34 -->
-  <div class="eq" data-q="q34">
-    <div class="eq-head"><span class="qnum">Q34 · LO 4</span>How does the SVS architecture prevent organizational silos?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q34','a',false)">A. By requiring all teams to report to a single governance body</div>
-      <div class="opt" data-o="b" data-correct="true" onclick="selectOption('q34','b',true)">B. By allowing value chain activities and practices to be combined in multiple flexible value streams rather than forming a fixed, rigid structure</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q34','c',false)">C. By mandating that each department uses the same processes</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q34','d',false)">D. By outsourcing non-core functions to specialist suppliers</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: B.</strong> The SVS is specifically designed to discourage siloed working. Activities and practices don't form a fixed structure — they can be combined in multiple value streams to address various needs. The guiding principles also create a shared culture that removes the need for silos.</div>
-  </div>
-
-  <!-- Q35 -->
-  <div class="eq" data-q="q35">
-    <div class="eq-head"><span class="qnum">Q35 · LO 2</span>Which guiding principle is MOST relevant when an organization wants to make sure its processes do not contain unnecessary steps?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q35','a',false)">A. Focus on value</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q35','b',false)">C. Collaborate and promote visibility</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q35','c',true)">C. Keep it simple and practical</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q35','d',false)">D. Think and work holistically</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> "Keep it simple and practical" = always use the minimum number of steps to accomplish an objective. If a process, action or metric fails to provide value, eliminate it. Outcome-based thinking, not feature-creep.</div>
-  </div>
-
-  <!-- Q36 -->
-  <div class="eq" data-q="q36">
-    <div class="eq-head"><span class="qnum">Q36 · LO 3</span>Which four dimensions dimension covers the relationships with other organizations involved in designing, developing, deploying, and supporting services?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q36','a',false)">A. Organizations and people</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q36','b',false)">B. Information and technology</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q36','c',true)">C. Partners and suppliers</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q36','d',false)">D. Value streams and processes</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Partners and suppliers = encompasses relationships with other organizations involved in design, development, deployment, delivery, support, and continual improvement of services, including contracts and agreements.</div>
-  </div>
-
-  <!-- Q37 -->
-  <div class="eq" data-q="q37">
-    <div class="eq-head"><span class="qnum">Q37 · LO 7</span>An IT manager needs to implement a critical security patch immediately due to an active vulnerability. Which type of change is this?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q37','a',false)">A. Standard change</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q37','b',false)">B. Normal change</div>
-      <div class="opt" data-o="c" data-correct="true" onclick="selectOption('q37','c',true)">C. Emergency change</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q37','d',false)">D. Authorized change</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: C.</strong> Emergency changes must be implemented as soon as possible — for example, to resolve an incident or implement a security patch. The assessment and authorization process is expedited. Some documentation may be deferred. "Authorized change" is not a defined ITIL 4 change type.</div>
-  </div>
-
-  <!-- Q38 -->
-  <div class="eq" data-q="q38">
-    <div class="eq-head"><span class="qnum">Q38 · LO 6</span>Which practice aims to ensure that the organization's suppliers and their performances are managed to support the seamless provision of quality products and services?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q38','a',false)">A. Relationship management</div>
-      <div class="opt" data-o="b" data-correct="true" onclick="selectOption('q38','b',true)">B. Supplier management</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q38','c',false)">C. Service level management</div>
-      <div class="opt" data-o="d" data-correct="false" onclick="selectOption('q38','d',false)">D. IT asset management</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: B.</strong> Supplier management = ensure suppliers and their performances are managed appropriately to support seamless quality service. This includes creating closer, more collaborative relationships with key suppliers. Relationship management focuses more broadly on all stakeholders at strategic/tactical levels.</div>
-  </div>
-
-  <!-- Q39 -->
-  <div class="eq" data-q="q39">
-    <div class="eq-head"><span class="qnum">Q39 · LO 7</span>Which of the following is TRUE about service requests?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q39','a',false)">A. Service requests represent failures or degradations in service</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q39','b',false)">B. All service requests require formal change authorization before fulfilment</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q39','c',false)">C. Service requests should always be handled by technical support teams, not the service desk</div>
-      <div class="opt" data-o="d" data-correct="true" onclick="selectOption('q39','d',true)">D. Service requests are pre-defined and pre-agreed as a normal part of service delivery, and should be standardized and automated where possible</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: D.</strong> Service requests are normal expected service actions — not failures. Some require authorization (financial, security), others do not. The service desk is the primary handler. Automation should be maximized. Fulfilment workflows should be standardized.</div>
-  </div>
-
-  <!-- Q40 -->
-  <div class="eq" data-q="q40">
-    <div class="eq-head"><span class="qnum">Q40 · LO 5/7</span>Which value chain activity is MOST associated with incident management and service request management practices?</div>
-    <div class="eq-opts">
-      <div class="opt" data-o="a" data-correct="false" onclick="selectOption('q40','a',false)">A. Plan</div>
-      <div class="opt" data-o="b" data-correct="false" onclick="selectOption('q40','b',false)">B. Design and transition</div>
-      <div class="opt" data-o="c" data-correct="false" onclick="selectOption('q40','c',false)">C. Obtain/build</div>
-      <div class="opt" data-o="d" data-correct="true" onclick="selectOption('q40','d',true)">D. Deliver and support</div>
-    </div>
-    <div class="eq-explain"><strong>Answer: D.</strong> Deliver and support is the primary value chain activity for incident management and service request management. Its purpose is to ensure services are delivered and supported according to agreed specifications. Incident management and service request management make their most significant contribution here.</div>
-  </div>
-
+  <div id="exam-questions"></div>
   <button class="exam-btn" id="submit-exam-btn" onclick="submitExam()">Submit Exam</button>
-  <button class="exam-btn" id="reset-exam-btn" onclick="resetExam()">Reset</button>
-</section>
-`;
+  <button class="exam-btn" id="reset-exam-btn" onclick="resetExam()">New Exam ↺</button>
+  <div id="exam-result-anchor"></div>
+  <div style="margin-top:48px;padding-top:32px;border-top:1px solid var(--border);">
+    <h3 style="font-size:16px;font-weight:600;color:var(--accent);margin-bottom:4px;">Attempt History</h3>
+    <p style="font-size:13px;color:#b8bdd8;margin-bottom:16px;">Tap any attempt to see the LO breakdown. Saved locally on this device.</p>
+    <div id="attempt-history"></div>
+  </div>
+</section>`);
 
-// Inject the exam section into main before the closing of main
-document.querySelector('main').insertAdjacentHTML('beforeend', examHTML);
-
-// Add nav link
-const navList = document.querySelector('nav ul:last-of-type');
 const li = document.createElement('li');
-li.innerHTML = '<a href="#mock-exam">40-Question Mock Exam</a>';
+li.innerHTML = '<a href="#mock-exam">Mock Exam (110Q pool)</a>';
 document.querySelector('nav').appendChild(li);
 </script>
 </body>
