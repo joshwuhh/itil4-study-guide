@@ -1963,9 +1963,6 @@ const observer = new IntersectionObserver((entries) => {
 sections.forEach(s => observer.observe(s));
 
 // ── MOCK EXAM LOGIC ──
-const EXAM_SIZE = 40;
-const STORAGE_KEY = 'itil4_attempts';
-
 const QUESTION_BANK = [
 // LO1
 {id:'l1_01',lo:'LO1',q:"What is the ITIL 4 definition of a 'service'?",opts:['A set of specialized organizational capabilities for enabling value for customers','A means of enabling value co-creation by facilitating outcomes that customers want to achieve, without the customer having to manage specific costs and risks','A tangible or intangible deliverable of an activity','The perceived benefits, usefulness, and importance of something'],correct:1,explain:"Option A = service management. Option C = output. Option D = value. A service specifically facilitates outcomes without the customer managing the associated costs and risks."},
